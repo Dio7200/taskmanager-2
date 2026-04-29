@@ -16,7 +16,7 @@ A Spring Boot REST API for managing personal tasks, with an AI-powered endpoint 
 **1. Clone the repository**
 ```bash
 git clone <your-repo-url>
-cd taskmanager 2
+cd taskmanager-2
 ```
 
 **2. Create a `.env` file in the project root**
