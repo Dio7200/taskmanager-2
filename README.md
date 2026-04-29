@@ -84,7 +84,9 @@ curl -X POST http://localhost:8080/tasks/suggest \
 # Deliberate choices made and why / pivots
 
 - I decided to use Maven based on the small size of this project
-- I decided to use OPENAI as the integrated AI for this application since it was available to me at the moment
+- I decided to use OPENAI as the integrated AI for this application since it was available to me at the moment as well as the AI im most familiar with
 - Initially started a converation with an OPENAI agent which started of pretty well but as i was instructing it and making clarifications the agent would pivot over and over and i ulitmately ended up at a roadblock when     it came to confuguring the required tests and the ensuring a reviewer could start this project with a single command.
 - After a bunch of back and forth with the agent I decided to start clean and create a new conversation
 - I started off making sure the problems i encountered with the first agent would not occur so those were prompted to be compeleted first and build the project/folder structure once this was configured.
+- Once these issues were covered and properly configured I went through the same steps of asking the agent to provide the files with their code for me to add in the appropriate folder which was successful besides a few other small roadblocks which were solved.
+- Requirements were constantly assured to be met
