@@ -80,3 +80,9 @@ curl -X POST http://localhost:8080/tasks/suggest \
 - The H2 database resets on every restart
 - The `/tasks/suggest` endpoint is stateless — it suggests but does not save
 - H2 console available at `http://localhost:8080/h2-console` with JDBC URL `jdbc:h2:mem:taskdb`
+
+# Deliberate choices made and why / pivots
+
+- I decided to use Maven based on the small size of this project
+- I decided to use OPENAI as the integrated AI for this application since it was available to me at the moment
+- Initially started a converation with an OPENAI agent which started of pretty well but as i was instructing it and making clarifications the agent would pivot over and over and i ulitmately ended up at a roadblock when it came to confuguring the required tests and the ensuring a reviewer could start this project with a single command.
