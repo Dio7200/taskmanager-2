@@ -21,3 +21,25 @@ cd taskmanager 2
 
 **2. Create a `.env` file in the project root**
 Create a file named `.env` in the same folder as `pom.xml` and add the following:
+
+OPENAI_API_KEY=sk-your-openai-key-here
+
+---
+
+## Run the Application
+
+```bash
+./mvnw spring-boot:run
+```
+
+Then open your browser at `http://localhost:8080`
+
+---
+
+## Run the Tests
+
+```bash
+./mvnw test
+```
+
+Expected output:
