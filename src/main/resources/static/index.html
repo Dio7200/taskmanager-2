@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>TaskFlow</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #0a0a0f;
+      --surface:   #13131a;
+      --surface2:  #1c1c26;
+      --border:    #2a2a38;
+      --accent:    #7c6af7;
+      --accent2:   #f76a8a;
+      --text:      #e8e8f0;
+      --muted:     #6b6b80;
+      --success:   #4ade80;
+      --warn:      #fbbf24;
+      --danger:    #f87171;
+      --radius:    12px;
+    }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 0;
+    }
+
+    /* ── HEADER ── */
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 24px 48px;
+      border-bottom: 1px solid var(--border);
+      background: var(--surface);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .logo {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: 1.5rem;
+      letter-spacing: -0.5px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .header-meta {
+      font-size: 0.8rem;
+      color: var(--muted);
+      font-weight: 300;
+    }
+
+    /* ── LAYOUT ── */
+    main {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 48px 32px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 32px;
+    }
+
+    .panel {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px;
+      animation: fadeUp 0.4s ease both;
+    }
+
+    .panel:nth-child(2) { animation-delay: 0.1s; }
+    .panel.full-width { grid-column: 1 / -1; animation-delay: 0.2s; }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .panel-title {
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: 1rem;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .panel-title span {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--accent);
+      display: inline-block;
+    }
+
+    /* ── FORM ── */
+    .form-group { margin-bottom: 14px; }
+
+    label {
+      display: block;
+      font-size: 0.78rem;
+      font-weight: 500;
+      color: var(--muted);
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+    }
+
+    input, textarea, select {
+      width: 100%;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 14px;
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.9rem;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      outline: none;
+    }
+
+    input:focus, textarea:focus, select:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(124, 106, 247, 0.15);
+    }
+
+    textarea { resize: vertical; min-height: 72px; }
+
+    select option { background: var(--surface2); }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    /* ── BUTTONS ── */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.9rem;
+      font-weight: 500;
+      cursor: pointer;
+      border: none;
+      transition: all 0.2s;
+      width: 100%;
+      margin-top: 6px;
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: #fff;
+    }
+    .btn-primary:hover { background: #6a58e0; transform: translateY(-1px); box-shadow: 0 4px 20px rgba(124,106,247,0.35); }
+
+    .btn-ai {
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      color: #fff;
+    }
+    .btn-ai:hover { opacity: 0.9; transform: translateY(-1px); box-shadow: 0 4px 20px rgba(247,106,138,0.3); }
+
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important; }
+
+    /* ── TASK LIST ── */
+    #task-list { display: flex; flex-direction: column; gap: 12px; }
+
+    .task-card {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 16px 18px;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 8px;
+      align-items: start;
+      transition: border-color 0.2s, transform 0.2s;
+      animation: fadeUp 0.3s ease both;
+    }
+
+    .task-card:hover { border-color: var(--accent); transform: translateX(3px); }
+
+    .task-title {
+      font-family: 'Syne', sans-serif;
+      font-weight: 600;
+      font-size: 0.95rem;
+      margin-bottom: 4px;
+    }
+
+    .task-desc {
+      font-size: 0.82rem;
+      color: var(--muted);
+      margin-bottom: 8px;
+      line-height: 1.5;
+    }
+
+    .task-meta {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .badge {
+      font-size: 0.7rem;
+      font-weight: 500;
+      padding: 3px 9px;
+      border-radius: 20px;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+    }
+
+    .badge-priority-HIGH   { background: rgba(248,113,113,0.15); color: var(--danger); }
+    .badge-priority-MEDIUM { background: rgba(251,191,36,0.15);  color: var(--warn); }
+    .badge-priority-LOW    { background: rgba(74,222,128,0.15);  color: var(--success); }
+
+    .badge-status-TODO        { background: rgba(107,107,128,0.2); color: var(--muted); }
+    .badge-status-IN_PROGRESS { background: rgba(124,106,247,0.15); color: var(--accent); }
+    .badge-status-DONE        { background: rgba(74,222,128,0.15);  color: var(--success); }
+
+    .task-date { font-size: 0.75rem; color: var(--muted); }
+
+    .btn-delete {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      border-radius: 6px;
+      padding: 5px 10px;
+      font-size: 0.75rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-family: 'DM Sans', sans-serif;
+    }
+    .btn-delete:hover { border-color: var(--danger); color: var(--danger); background: rgba(248,113,113,0.08); }
+
+    /* ── AI RESULT ── */
+    #ai-result {
+      display: none;
+      margin-top: 16px;
+      background: var(--surface2);
+      border: 1px solid var(--accent);
+      border-radius: 10px;
+      padding: 18px;
+      animation: fadeUp 0.3s ease both;
+    }
+
+    .ai-result-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--accent);
+      margin-bottom: 12px;
+    }
+
+    .ai-field { margin-bottom: 8px; font-size: 0.85rem; }
+    .ai-field strong { color: var(--muted); font-weight: 400; margin-right: 8px; font-size: 0.75rem; text-transform: uppercase; }
+
+    .empty-state {
+      text-align: center;
+      padding: 40px 20px;
+      color: var(--muted);
+      font-size: 0.88rem;
+    }
+
+    .empty-state .icon { font-size: 2rem; margin-bottom: 8px; opacity: 0.4; }
+
+    /* ── TOAST ── */
+    #toast {
+      position: fixed;
+      bottom: 32px;
+      right: 32px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px 20px;
+      font-size: 0.88rem;
+      opacity: 0;
+      transform: translateY(10px);
+      transition: all 0.3s;
+      pointer-events: none;
+      z-index: 999;
+    }
+    #toast.show { opacity: 1; transform: translateY(0); }
+    #toast.success { border-color: var(--success); color: var(--success); }
+    #toast.error   { border-color: var(--danger);  color: var(--danger); }
+
+    /* ── SPINNER ── */
+    .spinner {
+      width: 14px; height: 14px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.6s linear infinite;
+      display: inline-block;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    @media (max-width: 768px) {
+      main { grid-template-columns: 1fr; padding: 24px 16px; }
+      .panel.full-width { grid-column: 1; }
+      header { padding: 16px 20px; }
+      .form-row { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="logo">TaskFlow</div>
+  <div class="header-meta">Personal Task Manager</div>
+</header>
+
+<main>
+
+  <!-- CREATE TASK -->
+  <div class="panel">
+    <div class="panel-title"><span></span>New Task</div>
+    <div class="form-group">
+      <label>Title *</label>
+      <input type="text" id="title" placeholder="What needs to be done?" />
+    </div>
+    <div class="form-group">
+      <label>Description</label>
+      <textarea id="description" placeholder="Add some details..."></textarea>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Due Date</label>
+        <input type="date" id="dueDate" />
+      </div>
+      <div class="form-group">
+        <label>Priority</label>
+        <select id="priority">
+          <option value="LOW">Low</option>
+          <option value="MEDIUM" selected>Medium</option>
+          <option value="HIGH">High</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Status</label>
+      <select id="status">
+        <option value="TODO" selected>To Do</option>
+        <option value="IN_PROGRESS">In Progress</option>
+        <option value="DONE">Done</option>
+      </select>
+    </div>
+    <button class="btn btn-primary" onclick="createTask()">+ Create Task</button>
+  </div>
+
+  <!-- AI SUGGEST -->
+  <div class="panel">
+    <div class="panel-title"><span style="background:var(--accent2)"></span>AI Suggest</div>
+    <div class="form-group">
+      <label>Describe your task in plain English</label>
+      <textarea id="ai-description" placeholder='e.g. "remind me to submit the quarterly report before Friday"' style="min-height:100px"></textarea>
+    </div>
+    <button class="btn btn-ai" id="ai-btn" onclick="suggestTask()">✦ Generate Task</button>
+
+    <div id="ai-result">
+      <div class="ai-result-title">✦ AI Suggestion</div>
+      <div class="ai-field"><strong>Title</strong> <span id="ai-title"></span></div>
+      <div class="ai-field"><strong>Description</strong> <span id="ai-desc"></span></div>
+      <div class="ai-field"><strong>Due Date</strong> <span id="ai-due"></span></div>
+      <div class="ai-field"><strong>Priority</strong> <span id="ai-priority"></span></div>
+      <div class="ai-field"><strong>Status</strong> <span id="ai-status"></span></div>
+    </div>
+  </div>
+
+  <!-- TASK LIST -->
+  <div class="panel full-width">
+    <div class="panel-title" style="justify-content:space-between">
+      <div style="display:flex;align-items:center;gap:8px"><span></span>All Tasks</div>
+      <button onclick="loadTasks()" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:0.8rem;font-family:'DM Sans',sans-serif;">↻ Refresh</button>
+    </div>
+    <div id="task-list">
+      <div class="empty-state"><div class="icon">📋</div>No tasks yet. Create one above!</div>
+    </div>
+  </div>
+
+</main>
+
+<div id="toast"></div>
+
+<script>
+  const API = 'http://localhost:8080';
+
+  function showToast(msg, type = 'success') {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.className = `show ${type}`;
+    setTimeout(() => t.className = '', 3000);
+  }
+
+  async function loadTasks() {
+    try {
+      const res = await fetch(`${API}/tasks`);
+      const tasks = await res.json();
+      const list = document.getElementById('task-list');
+      if (!tasks.length) {
+        list.innerHTML = '<div class="empty-state"><div class="icon">📋</div>No tasks yet. Create one above!</div>';
+        return;
+      }
+      list.innerHTML = tasks.map(t => `
+        <div class="task-card">
+          <div>
+            <div class="task-title">${t.title}</div>
+            ${t.description ? `<div class="task-desc">${t.description}</div>` : ''}
+            <div class="task-meta">
+              <span class="badge badge-priority-${t.priority}">${t.priority}</span>
+              <span class="badge badge-status-${t.status}">${t.status.replace('_',' ')}</span>
+              ${t.dueDate ? `<span class="task-date">📅 ${t.dueDate}</span>` : ''}
+            </div>
+          </div>
+          <button class="btn-delete" onclick="deleteTask(${t.id})">Delete</button>
+        </div>
+      `).join('');
+    } catch (e) {
+      showToast('Failed to load tasks', 'error');
+    }
+  }
+
+  async function createTask() {
+    const title = document.getElementById('title').value.trim();
+    if (!title) { showToast('Title is required', 'error'); return; }
+    try {
+      const res = await fetch(`${API}/tasks`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          title,
+          description: document.getElementById('description').value.trim() || null,
+          dueDate:     document.getElementById('dueDate').value || null,
+          priority:    document.getElementById('priority').value,
+          status:      document.getElementById('status').value,
+        })
+      });
+      if (!res.ok) throw new Error();
+      ['title','description','dueDate'].forEach(id => document.getElementById(id).value = '');
+      document.getElementById('priority').value = 'MEDIUM';
+      document.getElementById('status').value = 'TODO';
+      showToast('Task created!');
+      loadTasks();
+    } catch (e) {
+      showToast('Failed to create task', 'error');
+    }
+  }
+
+  async function deleteTask(id) {
+    try {
+      await fetch(`${API}/tasks/${id}`, { method: 'DELETE' });
+      showToast('Task deleted');
+      loadTasks();
+    } catch (e) {
+      showToast('Failed to delete task', 'error');
+    }
+  }
+
+  async function suggestTask() {
+    const desc = document.getElementById('ai-description').value.trim();
+    if (!desc) { showToast('Please enter a description', 'error'); return; }
+    const btn = document.getElementById('ai-btn');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span> Generating...';
+    try {
+      const res = await fetch(`${API}/tasks/suggest`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ description: desc })
+      });
+      const task = await res.json();
+      document.getElementById('ai-title').textContent    = task.title;
+      document.getElementById('ai-desc').textContent     = task.description;
+      document.getElementById('ai-due').textContent      = task.dueDate || '—';
+      document.getElementById('ai-priority').textContent = task.priority;
+      document.getElementById('ai-status').textContent   = task.status;
+      document.getElementById('ai-result').style.display = 'block';
+      showToast('Task generated!');
+    } catch (e) {
+      showToast('AI request failed', 'error');
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = '✦ Generate Task';
+    }
+  }
+
+  loadTasks();
+</script>
+</body>
+</html>
